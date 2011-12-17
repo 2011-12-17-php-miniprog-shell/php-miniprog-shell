@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+*.pyo
+php-miniprog-shell.conf
+/site-packages
+/test-site
