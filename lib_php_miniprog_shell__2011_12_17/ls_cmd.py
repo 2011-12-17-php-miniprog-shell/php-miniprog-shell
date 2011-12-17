@@ -17,7 +17,9 @@
 
 assert str is not bytes
 
-import sys
+import sys, argparse
+
+from .config import Config
 
 DESCRIPTION = 'List files and directories inside the specified path'
 
@@ -25,4 +27,25 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     
-    print(argv) # TEST ONLY !!
+    config = Config()
+    parser = argparse.ArgumentParser(
+            prog=argv[0],
+            description=DESCRIPTION)
+    
+    config.add_arguments(parser)
+    parser.add_argument(
+        'path',
+        nargs='?',
+        help='Path to directory that will be scanned',
+    )
+    
+    parser.add_argument(
+        '--one',
+        help='List one file per line in simple view',
+    )
+    
+    args = parser.parse_args(args=argv[1:])
+    config.read(args)
+    
+    print(args) # TEST ONLY !!
+    print(config._map) # TEST ONLY !!
