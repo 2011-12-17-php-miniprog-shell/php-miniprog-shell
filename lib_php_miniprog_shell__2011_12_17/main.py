@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- mode: python; coding: utf-8 -*-
 #
 # Copyright 2011 Andrej A Antonov <polymorphm@gmail.com>.
@@ -18,19 +17,5 @@
 
 assert str is not bytes
 
-REQUIRED_PACKAGES = (
-    'tornado',
-)
-
-import sys, os.path
-for pkg in REQUIRED_PACKAGES:
-    sys.path.append(os.path.abspath(os.path.join(
-            os.path.dirname(__file__), 'site-packages', pkg)))
-
-from lib_php_miniprog_shell__2011_12_17.main import main
-
-if __name__ == '__main__':
-    error = main()
-    
-    if error:
-        exit(error)
+def main():
+    pass # TODO: ... some code ;) ...
