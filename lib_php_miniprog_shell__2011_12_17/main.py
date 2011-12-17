@@ -45,8 +45,6 @@ def import_module(name):
 
 def import_cmd_module(cmd):
     cmd_module_name = '.{}_cmd'.format(cmd.replace('-', '_'))
-    cmd_prog = '{}-{}'.format(sys.argv[0], cmd)
-    cmd_argv = (cmd_prog,) + tuple(sys.argv[2:])
     
     return import_module(cmd_module_name)
 
@@ -97,6 +95,8 @@ def main():
             return
         
         cmd_module = import_cmd_module(cmd)
+        cmd_prog = '{}-{}'.format(sys.argv[0], cmd)
+        cmd_argv = (cmd_prog,) + tuple(sys.argv[2:])
         exit_code = cmd_module.main(argv=cmd_argv)
         
         if exit_code:
