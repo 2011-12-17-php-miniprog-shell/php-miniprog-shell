@@ -33,7 +33,7 @@ def gen_hash(secret, msg):
     t = str(int(time.time())).encode()
     super_secret = hmac.new(secret, t, new_hash_obj)
     m = hmac.new(
-            super_secret.hexdigest().encode(),
+            super_secret.digest(),
             msg, new_hash_obj)
     
     return m
