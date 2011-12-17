@@ -1,6 +1,6 @@
 __pycache__
 *.pyc
 *.pyo
-php-miniprog-shell.ini
+php-miniprog-shell.cfg
 /site-packages
 /test-site

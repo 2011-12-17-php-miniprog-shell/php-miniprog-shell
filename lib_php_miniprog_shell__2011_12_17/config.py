@@ -19,7 +19,7 @@ assert str is not bytes
 
 import sys, os.path, configparser
 
-DEFAULT_CONFIG_FILENAME = 'php-miniprog-shell.ini'
+DEFAULT_CONFIG_FILENAME = 'php-miniprog-shell.cfg'
 COMMON_CONFIG_META_MAP = {
     'auth.secret': dict(
         get_config_func=lambda config:
