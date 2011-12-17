@@ -26,14 +26,14 @@ def new_hash_obj():
 
 def gen_hash(secret, msg):
     if isinstance(secret, str):
-        secret = secret.encode('utf-8')
+        secret = secret.encode()
     if isinstance(msg, str):
-        msg = msg.encode('utf-8')
+        msg = msg.encode()
     
-    t = str(int(time.time())).encode('utf-8')
+    t = str(int(time.time())).encode()
     super_secret = hmac.new(secret, t, new_hash_obj)
     m = hmac.new(
-            super_secret.hexdigest().encode('utf-8'),
+            super_secret.hexdigest().encode(),
             msg, new_hash_obj)
     
-    return m.hexdigest()
+    return m
