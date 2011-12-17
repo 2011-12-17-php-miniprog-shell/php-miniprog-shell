@@ -21,6 +21,7 @@ import sys, importlib
 
 COMMAND_LIST = (
     'php-func',
+    'pwd',
     'ls',
     'cat',
     'rm',
