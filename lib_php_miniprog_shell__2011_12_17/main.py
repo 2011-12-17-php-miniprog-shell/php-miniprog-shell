@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-import sys, importlib
+import sys, os.path, importlib, argparse, configparser
 
 COMMAND_LIST = (
     'php-func',
@@ -34,6 +34,7 @@ COMMAND_LIST = (
     'get',
     'put',
 )
+DEFAULT_CONFIG_FILENAME = 'php-miniprog-shell.cfg'
 
 class UserError(Exception):
     pass
@@ -49,56 +50,70 @@ def import_cmd_module(cmd):
     
     return import_module(cmd_module_name)
 
-def get_cmd_description(cmd, is_str_only=None):
-    if is_str_only is None:
-        is_str_only = False
+def import_argparse_module(cmd):
+    cmd_module_name = '.{}_argparse'.format(cmd.replace('-', '_'))
     
+    return import_module(cmd_module_name)
+
+def cmd_add_argument(cmd, subparsers):
     try:
-        cmd_module = import_cmd_module(cmd)
+        cmd_module = import_argparse_module(cmd)
     except ImportError:
-        return '(Not implemented command or error)'
+        return
     
     description = getattr(cmd_module, 'DESCRIPTION', None)
+    help = getattr(cmd_module, 'HELP', None)
+    add_arguments_func = getattr(cmd_module, 'add_arguments', None)
     
-    if is_str_only and description is None:
-            description = ''
+    cmd_parser = subparsers.add_parser(cmd, help=help, description=description)
+    cmd_parser.set_defaults(cmd=cmd)
     
-    return description
+    if add_arguments_func is not None:
+        add_arguments_func(cmd_parser)
+    
+    return help
 
-def print_help():
-    print(
-        'usage: {prog} <command> ...\n\n'
-        'commands:\n{cmd_list}\n\n'
-        'See \'{prog} <command> --help\' '
-        'for more information on a specific command.'.format(
-            prog=sys.argv[0],
-            cmd_list='\n'.join(
-                '    {cmd}   \t{description}'.format(
-                    cmd=cmd,
-                    description=get_cmd_description(cmd, is_str_only=True),
-                )
-                for cmd in COMMAND_LIST
-            ),
-        )
-    )
+def get_config_path(args):
+    config_path = args.config
+    
+    if config_path is None:
+        config_path = os.path.join(
+                os.path.dirname(sys.argv[0]),
+                DEFAULT_CONFIG_FILENAME)
+    
+    return config_path
 
 def main():
     try:
-        if len(sys.argv) < 2:
-            print_help()
-            return
+        parser = argparse.ArgumentParser(
+                description='Utility for sending commands to remote php www-site')
         
-        cmd = sys.argv[1]
+        parser.add_argument(
+                '--config',
+                help='Custom path to config ini-file')
+        parser.add_argument(
+                '--miniprog-host',
+                help='Host name (and port) of www-site with miniprog-processor php-file')
+        parser.add_argument(
+                '--miniprog-path',
+                help='Path to miniprog-processor php-file')
+        parser.add_argument(
+                '--debug-last-miniprog',
+                help='Path to local-file for outputting last mini-program')
+        subparsers = parser.add_subparsers()
         
-        if cmd == 'help' or \
-                '.' in cmd or cmd not in COMMAND_LIST:
-            print_help()
-            return
+        for cmd in COMMAND_LIST:
+            cmd_add_argument(cmd, subparsers)
         
+        args = parser.parse_args()
+        
+        config = configparser.ConfigParser(
+                interpolation=configparser.ExtendedInterpolation())
+        config.read(get_config_path(args))
+        
+        cmd = args.cmd
         cmd_module = import_cmd_module(cmd)
-        cmd_prog = '{}-{}'.format(sys.argv[0], cmd)
-        cmd_argv = (cmd_prog,) + tuple(sys.argv[2:])
-        exit_code = cmd_module.main(argv=cmd_argv)
+        exit_code = cmd_module.cmd(args, config)
         
         if exit_code:
             return exit_code

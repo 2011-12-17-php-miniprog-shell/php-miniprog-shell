@@ -17,15 +17,16 @@
 
 assert str is not bytes
 
-from .core_config import get_core_config
+DESCRIPTION = 'List files and directories inside the specified path'
+HELP = DESCRIPTION
 
-def cmd(args, config):
-    core_config = get_core_config(args, config)
-    
-    print(args) # TEST ONLY !!
-    print((
-        core_config.auth_secret,
-        core_config.miniprog_host,
-        core_config.miniprog_path,
-        core_config.debug_last_miniprog,
-    )) # TEST ONLY !!
+def add_arguments(arg_parser):
+    arg_parser.add_argument(
+        'path',
+        nargs='?',
+        help='Path to directory that will be scanned',
+    )
+    arg_parser.add_argument(
+        '--one',
+        help='List one file per line in simple view',
+    )
