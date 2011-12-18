@@ -59,7 +59,7 @@ def cmd_add_argument(cmd, subparsers):
     try:
         cmd_module = import_argparse_module(cmd)
     except ImportError:
-        return
+        cmd_module = None
     
     description = getattr(cmd_module, 'DESCRIPTION', None)
     help = getattr(cmd_module, 'HELP', None)
@@ -100,7 +100,7 @@ def main():
         parser.add_argument(
                 '--debug-last-miniprog',
                 help='Path to local-file for outputting last mini-program')
-        subparsers = parser.add_subparsers()
+        subparsers = parser.add_subparsers(title='subcommands')
         
         for cmd in COMMAND_LIST:
             cmd_add_argument(cmd, subparsers)
