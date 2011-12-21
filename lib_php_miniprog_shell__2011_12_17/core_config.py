@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-class CoreConfig(object):
+class CoreConfig:
     pass
 
 def get_auth_secret(args, config):
