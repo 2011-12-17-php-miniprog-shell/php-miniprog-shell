@@ -1,5 +1,3 @@
-$result = array();
-
 try {
     $scandir_list = scandir($arg__ARG_MAP['path']);
 } catch (ErrorException $e) {
@@ -7,6 +5,8 @@ try {
         'error' => $e->getMessage(),
     ));
 }
+
+$result = array();
 
 foreach ($scandir_list as $file) {
     $meta = array(

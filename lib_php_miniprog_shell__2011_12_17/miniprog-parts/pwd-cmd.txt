@@ -1,4 +1,12 @@
+try {
+    $result = getcwd();
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
 return json_encode(array(
-    'result' => getcwd(),
+    'result' => $result,
     'error' => NULL,
 ));
