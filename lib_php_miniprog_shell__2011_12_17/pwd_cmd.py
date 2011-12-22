@@ -38,6 +38,6 @@ def cmd(args, config, callback=None):
     
     run_miniprog(
         core_config,
-        ['pwd_cmd'],
+        ['pwd-cmd'],
         callback=on_response
     )
