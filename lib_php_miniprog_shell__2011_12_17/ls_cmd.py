@@ -18,14 +18,84 @@
 assert str is not bytes
 
 from .core_config import get_core_config
+from .miniprog import run_miniprog
+from .main import CmdError
+
+class LsCmdError(CmdError):
+    pass
 
 def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
-    print(args) # TEST ONLY !!
-    print((
-        core_config.auth_secret,
-        core_config.miniprog_host,
-        core_config.miniprog_path,
-        core_config.debug_last_miniprog,
-    )) # TEST ONLY !!
+    path = args.path
+    
+    if path is None:
+        path = '.'
+    
+    one = args.one
+    
+    if one is None:
+        one = False
+    
+    def on_response(response_data):
+        error = response_data.get('error')
+        
+        if error is not None:
+            raise LsCmdError(error)
+        
+        result = response_data.get('result')
+        
+        if not isinstance(result, (tuple, list)):
+            raise LsCmdError('Invalid result type')
+        
+        msg_list = []
+        
+        for meta in result:
+            if not isinstance(meta, dict):
+                raise LsCmdError('Invalid result type')
+            
+            file_name = meta.get('name')
+            
+            if not isinstance(file_name, str):
+                raise LsCmdError('Invalid result type')
+            
+            if not args.one:
+                file_type = meta.get('type')
+                
+                if file_type is not None:
+                    if not isinstance(file_type, str):
+                        raise LsCmdError('Invalid result type')                
+                else:
+                    file_type = '???'
+                
+                file_stat = meta.get('stat')
+                
+                if file_stat is not None:
+                    if not isinstance(file_stat, dict):
+                        raise LsCmdError('Invalid result type')
+                    
+                    file_size = file_stat.get('size')
+                    
+                    if not isinstance(file_size, int):
+                        raise LsCmdError('Invalid result type')
+                else:
+                    file_size = '???'
+                
+                msg_list.append('{}\t{}\t{}'.format(file_type, file_size, file_name))
+            else:
+                msg_list.append(file_name)
+        
+        print('\n'.join(msg_list))
+        
+        if callback is not None:
+            callback()
+    
+    run_miniprog(
+        core_config,
+        ['ls-cmd'],
+        arg_map={
+            'path': path,
+            'one': one,
+        },
+        callback=on_response
+    )

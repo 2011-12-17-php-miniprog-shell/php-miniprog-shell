@@ -28,5 +28,6 @@ def add_arguments(arg_parser):
     )
     arg_parser.add_argument(
         '--one',
+        action='store_true',
         help='List one file per line in simple view',
     )

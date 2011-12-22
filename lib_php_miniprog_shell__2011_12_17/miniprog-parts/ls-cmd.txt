@@ -1,0 +1,56 @@
+$result = array();
+
+try {
+    $scandir_list = scandir($arg__ARG_MAP['path']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+foreach ($scandir_list as $file) {
+    $meta = array(
+        'name' => $file,
+    );
+    
+    if (!$arg__ARG_MAP['one']) {
+        try {
+            $type_list = array();
+            
+            if (is_dir($file)) {
+                $type_list []= 'd';
+            } else {
+                $type_list []= '-';
+            }
+            
+            if (is_file($file)) {
+                $type_list []= 'f';
+            } else {
+                $type_list []= '-';
+            }
+            
+            if (is_link($file)) {
+                $type_list []= 'l';
+            } else {
+                $type_list []= '-';
+            }
+            
+            $meta['type'] = join('', $type_list);
+        } catch (ErrorException $e) {
+            $meta['type'] = NULL;
+        }
+        
+        try {
+            $meta['stat'] = stat($file);
+        } catch (ErrorException $e) {
+            $meta['stat'] = NULL;
+        }
+    }
+    
+    $result []= $meta;
+}
+
+return json_encode(array(
+    'result' => $result,
+    'error' => NULL,
+));
