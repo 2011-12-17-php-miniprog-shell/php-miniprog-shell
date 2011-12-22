@@ -17,12 +17,12 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'Evaluates given PHP-functions'
+DESCRIPTION = 'Evaluate given PHP-function'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):
     arg_parser.add_argument(
         'func',
         nargs='+',
-        help='PHP-function. for example: "phpversion()"',
+        help='PHP-function. For example: "phpversion()"',
     )
