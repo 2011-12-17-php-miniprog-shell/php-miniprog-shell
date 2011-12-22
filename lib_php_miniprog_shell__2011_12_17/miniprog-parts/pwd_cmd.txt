@@ -1,0 +1,4 @@
+return json_encode(array(
+    'result' => getcwd(),
+    'error' => NULL,
+));

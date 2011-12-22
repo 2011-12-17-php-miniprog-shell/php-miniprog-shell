@@ -1,0 +1,13 @@
+// common part
+
+function common__error_handler($errno, $errstr) {
+    throw new ErrorException(sprintf('[%s] %s', $errno, $errstr));
+}
+
+set_error_handler('common__error_handler');
+
+if (array_key_exists('DOCUMENT_ROOT', $_SERVER)) {
+    try {
+        chdir($_SERVER['DOCUMENT_ROOT']);
+    } catch (ErrorException $e) {}
+}
