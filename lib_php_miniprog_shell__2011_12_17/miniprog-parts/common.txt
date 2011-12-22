@@ -1,6 +1,6 @@
 // common part
 
-function common__error_handler($errno, $errstr) {
+function common__error_handler ($errno, $errstr) {
     throw new ErrorException(sprintf('[%s] %s', $errno, $errstr));
 }
 
