@@ -75,7 +75,8 @@ def write_debug_last_miniprog(path, func):
     with open(path, mode='wt', encoding='utf-8', newline='\n') as fd:
         fd.write(func)
 
-def run_func(core_config, func, callback=None):
+def run_func(core_config, func,
+        use_response_json=None, callback=None):
     if core_config.miniprog_host is None:
         raise UserError('\'miniprog_host\' has not been set')
     if core_config.miniprog_path is None:
@@ -95,4 +96,5 @@ def run_func(core_config, func, callback=None):
             core_config.miniprog_path,
             hash_hex,
             func,
+            use_response_json=use_response_json,
             callback=callback)

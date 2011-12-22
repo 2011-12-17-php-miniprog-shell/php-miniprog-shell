@@ -21,7 +21,11 @@ from .compile import compile_miniprog
 from .core import run_func
 
 def run_miniprog(core_config, part_list,
-        arg_map=None, custom_part=None, callback=None):
-    func = compile_miniprog(part_list, arg_map=arg_map, custom_part=None)
+        arg_map=None, custom_part=None, use_response_json=None, callback=None):
+    func = compile_miniprog(part_list, arg_map=arg_map, custom_part=custom_part)
     
-    run_func(core_config, func, callback=callback)
+    run_func(
+            core_config,
+            func,
+            use_response_json=use_response_json,
+            callback=callback)
