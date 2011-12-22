@@ -19,7 +19,7 @@ assert str is not bytes
 
 import sys, os.path, importlib, functools, traceback, argparse, configparser
 import tornado.ioloop
-import tornado.stack_context, contextlib
+import tornado.stack_context
 
 COMMAND_LIST = (
     'php-func',
@@ -94,10 +94,9 @@ def on_finish(exit_code=None):
     if exit_code is not None:
         exit(exit_code)
 
-@contextlib.contextmanager
-def on_user_error():
+def on_error(e_type, e_value, e_traceback):
     try:
-        yield
+        raise e_value
     except UserError as e:
         print('UserError: {}'.format(e), file=sys.stderr)
         exit(2)
@@ -109,7 +108,7 @@ def on_user_error():
         exit(1)
 
 def main():
-    with tornado.stack_context.StackContext(on_user_error):
+    with tornado.stack_context.ExceptionStackContext(on_error):
         parser = argparse.ArgumentParser(
                 description='Utility for sending commands to remote php www-site')
         
