@@ -31,7 +31,12 @@ def cmd(args, config, callback=None):
         if response_data.get('error') is not None:
             raise PwdCmdError(response_data.get('error'))
         
-        print(response_data.get('result'))
+        result = response_data.get('result')
+        
+        if not isinstance(result, str):
+            raise PwdCmdError('Invalid result type')
+        
+        print(result)
         
         if callback is not None:
             callback()
