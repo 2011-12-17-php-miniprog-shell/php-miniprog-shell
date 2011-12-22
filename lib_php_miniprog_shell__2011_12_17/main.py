@@ -25,7 +25,7 @@ COMMAND_LIST = (
     'php-func',
     'pwd',
     'ls',
-    'cat',
+    'view',
     'rm',
     'mv',
     'cp',
