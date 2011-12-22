@@ -20,7 +20,7 @@ assert str is not bytes
 from .auth import gen_hash
 from .main import UserError
 
-def run_func_core(host, path, hash_hex, func):
+def run_func_core(host, path, hash_hex, func, callback=None):
     # BEGIN TEST STUB ONLY
     print(
         'host: {host!r}\n'
@@ -36,12 +36,15 @@ def run_func_core(host, path, hash_hex, func):
     # END TEST STUB ONLY
     
     # TODO: ...
+    
+    if callback is not None:
+        callback()
 
 def write_debug_last_miniprog(path, func):
     with open(path, mode='wt', encoding='utf-8', newline='\n') as fd:
         fd.write(func)
 
-def run_func(core_config, func):
+def run_func(core_config, func, callback=None):
     if core_config.miniprog_host is None:
         raise UserError('\'miniprog_host\' has not been set')
     if core_config.miniprog_path is None:
@@ -56,8 +59,9 @@ def run_func(core_config, func):
     if core_config.debug_last_miniprog is not None:
         write_debug_last_miniprog(core_config.debug_last_miniprog, func)
     
-    return run_func_core(
+    run_func_core(
             core_config.miniprog_host,
             core_config.miniprog_path,
             hash_hex,
-            func)
+            func,
+            callback=callback)

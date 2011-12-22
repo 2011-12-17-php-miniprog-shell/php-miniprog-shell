@@ -19,7 +19,7 @@ assert str is not bytes
 
 from .core_config import get_core_config
 
-def cmd(args, config):
+def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
     print(args) # TEST ONLY !!

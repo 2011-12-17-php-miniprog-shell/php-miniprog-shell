@@ -18,6 +18,8 @@
 assert str is not bytes
 
 import sys, os.path, importlib, argparse, configparser
+import tornado.ioloop
+import tornado.stack_context, contextlib
 
 COMMAND_LIST = (
     'php-func',
@@ -83,8 +85,22 @@ def get_config_path(args):
     
     return config_path
 
-def main():
+def on_finish(exit_code=None):
+    tornado.ioloop.IOLoop.instance().stop()
+    
+    if exit_code is not None:
+        exit(exit_code)
+
+@contextlib.contextmanager
+def on_user_error():
     try:
+        yield
+    except UserError as e:
+        print('{}'.format(e), file=sys.stderr)
+        exit(2)
+
+def main():
+    with tornado.stack_context.StackContext(on_user_error):
         parser = argparse.ArgumentParser(
                 description='Utility for sending commands to remote php www-site')
         
@@ -113,9 +129,6 @@ def main():
         
         cmd = args.cmd
         cmd_module = import_cmd_module(cmd)
-        exit_code = cmd_module.cmd(args, config)
+        cmd_module.cmd(args, config, callback=on_finish)
         
-        if exit_code:
-            return exit_code
-    except UserError as e:
-        print('{}'.format(e), file=sys.stderr)
+        tornado.ioloop.IOLoop.instance().start()

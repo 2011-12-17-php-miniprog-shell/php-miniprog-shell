@@ -20,7 +20,8 @@ assert str is not bytes
 from .compile import compile_miniprog
 from .core import run_func
 
-def run_miniprog(core_config, part_list, arg_map=None, custom_part=None):
+def run_miniprog(core_config, part_list,
+        arg_map=None, custom_part=None, callback=None):
     func = compile_miniprog(part_list, arg_map=arg_map, custom_part=None)
     
-    return run_func(core_config, func)
+    run_func(core_config, func, callback=callback)

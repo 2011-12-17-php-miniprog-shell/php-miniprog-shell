@@ -20,7 +20,7 @@ assert str is not bytes
 from .core_config import get_core_config
 from .miniprog import run_miniprog
 
-def cmd(args, config):
+def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
     # BEGIN TEST STUB ONLY
@@ -37,6 +37,7 @@ def cmd(args, config):
             'fignya': 'фигня',
             'fignya_b': 'фигня'.encode(),
         },
+        callback=callback
     )
     # END TEST STUB ONLY
     
