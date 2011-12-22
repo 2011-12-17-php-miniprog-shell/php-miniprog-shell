@@ -28,9 +28,6 @@ def http_post_request(host, path, data, use_tor=None, callback=None):
     if use_tor is None:
         use_tor = False
     
-    if callback is not None:
-        callback = tornado.stack_context.wrap(callback)
-    
     if use_tor:
         #from blahbla import blahblahblah
         #
@@ -39,6 +36,14 @@ def http_post_request(host, path, data, use_tor=None, callback=None):
         raise NotImplementedError('Tor-using not yet not implemented')
     else:
         connection_factory = http.client.HTTPConnection
+    
+    @tornado.stack_context.wrap
+    def on_response(response, error):
+        if error is not None:
+            raise error
+        
+        if callback is not None:
+            callback(response)
     
     def daemon():
         response = None
@@ -55,7 +60,7 @@ def http_post_request(host, path, data, use_tor=None, callback=None):
             error = e
         
         tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(callback, response, error))
+                functools.partial(on_response, response, error))
     
     thread = threading.Thread(target=daemon)
     thread.daemon = True

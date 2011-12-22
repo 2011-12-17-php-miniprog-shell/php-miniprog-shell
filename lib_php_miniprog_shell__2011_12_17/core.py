@@ -44,10 +44,7 @@ def run_func_core(host, path, hash_hex, func,
         'func_b': base64.b64encode(func),
     }
     
-    def on_response(response, error):
-        if error is not None:
-            raise error
-        
+    def on_response(response):
         response_data = response.read()
         
         if response.status != 200:
@@ -55,17 +52,18 @@ def run_func_core(host, path, hash_hex, func,
                 'response.status not 200. response_data is:\n'
                 '{}\n__END_RESPONSE_DATA__'.format(response_data))
         
-        if callback is not None:
-            if use_response_json:
-                from json import loads as json_loads
-                
-                try:
-                    response_data = json_loads(response_data.decode())
-                except ValueError as e:
-                    raise DataRunFuncError(
-                        'json_loads() fail. response_data is:\n'
-                        '{}\n__END_RESPONSE_DATA__'.format(response_data))
+        
+        if use_response_json:
+            from json import loads as json_loads
             
+            try:
+                response_data = json_loads(response_data.decode())
+            except ValueError as e:
+                raise DataRunFuncError(
+                    'json_loads() fail. response_data is:\n'
+                    '{}\n__END_RESPONSE_DATA__'.format(response_data))
+        
+        if callback is not None:
             callback(response_data)
     
     http_post_request(host, path, data,
