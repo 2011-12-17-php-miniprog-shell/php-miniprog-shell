@@ -19,13 +19,19 @@ assert str is not bytes
 
 from .core_config import get_core_config
 from .miniprog import run_miniprog
+from .main import CmdError
+
+class PwdCmdError(CmdError):
+    pass
 
 def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
-    # BEGIN TEST STUB ONLY
     def on_response(response_data):
-        print(repr(response_data))
+        if response_data.get('error') is not None:
+            raise PwdCmdError(response_data.get('error'))
+        
+        print(response_data.get('result'))
         
         if callback is not None:
             callback()
@@ -33,18 +39,5 @@ def cmd(args, config, callback=None):
     run_miniprog(
         core_config,
         ['pwd_cmd'],
-        arg_map = {
-            123: 'abc',
-            'bcd': 234,
-            'bcd.e': 234.56,
-            'x': None,
-            'xx': True,
-            'xy': False,
-            'fignya': 'фигня',
-            'fignya_b': 'фигня'.encode(),
-        },
         callback=on_response
     )
-    # END TEST STUB ONLY
-    
-    # TODO: ...

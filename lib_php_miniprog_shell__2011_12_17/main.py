@@ -41,6 +41,9 @@ DEFAULT_CONFIG_FILENAME = 'php-miniprog-shell.cfg'
 class UserError(Exception):
     pass
 
+class CmdError(Exception):
+    pass
+
 def get_package_name():
     return '.'.join(__name__.split('.')[:-1])
 
@@ -96,8 +99,11 @@ def on_user_error():
     try:
         yield
     except UserError as e:
-        print('{}'.format(e), file=sys.stderr)
+        print('UserError: {}'.format(e), file=sys.stderr)
         exit(2)
+    except CmdError as e:
+        print('CmdError: {}'.format(e), file=sys.stderr)
+        exit(1)
     except Exception as e:
         traceback.print_exc()
         exit(1)
