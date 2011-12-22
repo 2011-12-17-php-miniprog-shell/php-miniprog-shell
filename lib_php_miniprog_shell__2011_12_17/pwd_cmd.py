@@ -28,8 +28,10 @@ def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
     def on_response(response_data):
-        if response_data.get('error') is not None:
-            raise PwdCmdError(response_data.get('error'))
+        error = response_data.get('error')
+        
+        if error is not None:
+            raise PwdCmdError(error)
         
         result = response_data.get('result')
         
