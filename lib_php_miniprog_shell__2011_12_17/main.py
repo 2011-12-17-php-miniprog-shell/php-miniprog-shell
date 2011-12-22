@@ -132,9 +132,6 @@ def main():
         
         cmd = args.cmd
         cmd_module = import_cmd_module(cmd)
-        
-        io_loop = tornado.ioloop.IOLoop.instance()
-        io_loop.add_callback(functools.partial(
-                cmd_module.cmd, args, config, callback=on_finish))
+        cmd_module.cmd(args, config, callback=on_finish)
     
-    io_loop.start()
+    io_loop = tornado.ioloop.IOLoop.instance().start()
