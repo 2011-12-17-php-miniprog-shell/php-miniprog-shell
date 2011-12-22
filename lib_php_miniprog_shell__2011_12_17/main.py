@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-import sys, os.path, importlib, argparse, configparser
+import sys, os.path, importlib, functools, traceback, argparse, configparser
 import tornado.ioloop
 import tornado.stack_context, contextlib
 
@@ -98,6 +98,9 @@ def on_user_error():
     except UserError as e:
         print('{}'.format(e), file=sys.stderr)
         exit(2)
+    except Exception as e:
+        traceback.print_exc()
+        exit(1)
 
 def main():
     with tornado.stack_context.StackContext(on_user_error):
@@ -129,6 +132,9 @@ def main():
         
         cmd = args.cmd
         cmd_module = import_cmd_module(cmd)
-        cmd_module.cmd(args, config, callback=on_finish)
         
-        tornado.ioloop.IOLoop.instance().start()
+        io_loop = tornado.ioloop.IOLoop.instance()
+        io_loop.add_callback(functools.partial(
+                cmd_module.cmd, args, config, callback=on_finish))
+    
+    io_loop.start()

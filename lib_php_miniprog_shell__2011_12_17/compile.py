@@ -46,14 +46,15 @@ def arg_value_encode(value):
             .format(base64.b64encode(value).decode())
 
 def compile_arg_part(arg_map):
-    return 'global arg__ARG_MAP = array(\n{}\n);\n'.format(
-        '\n'.join(
-            '    \'{}\' => {},'.format(
-                arg_name,
-                arg_value_encode(arg_map[arg_name]),
-            ) for arg_name in arg_map,
-        ),
-    )
+    return 'global $arg__ARG_MAP;\n\n' \
+        '$arg__ARG_MAP = array(\n{}\n);\n'.format(
+            '\n'.join(
+                '    \'{}\' => {},'.format(
+                    arg_name,
+                    arg_value_encode(arg_map[arg_name]),
+                ) for arg_name in arg_map,
+            ),
+        )
 
 def read_part(part):
     fn = '{}.txt'.format(part)

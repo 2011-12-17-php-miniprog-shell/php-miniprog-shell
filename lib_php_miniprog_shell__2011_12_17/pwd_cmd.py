@@ -24,6 +24,12 @@ def cmd(args, config, callback=None):
     core_config = get_core_config(args, config)
     
     # BEGIN TEST STUB ONLY
+    def on_response(response_data):
+        print(repr(response_data))
+        
+        if callback is not None:
+            callback()
+    
     run_miniprog(
         core_config,
         ['pwd_cmd'],
@@ -37,7 +43,7 @@ def cmd(args, config, callback=None):
             'fignya': 'фигня',
             'fignya_b': 'фигня'.encode(),
         },
-        callback=callback
+        callback=on_response
     )
     # END TEST STUB ONLY
     

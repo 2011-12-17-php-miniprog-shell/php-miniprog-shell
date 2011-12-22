@@ -17,28 +17,59 @@
 
 assert str is not bytes
 
+import base64
 from .auth import gen_hash
+from .http_client import http_post_request
 from .main import UserError
 
-def run_func_core(host, path, hash_hex, func, callback=None):
-    # BEGIN TEST STUB ONLY
-    print(
-        'host: {host!r}\n'
-        'path: {path!r}\n'
-        'hash_hex: {hash_hex!r}\n\n'
-        'func:\n{func}'.format(
-            host=host,
-            path=path,
-            hash_hex=hash_hex,
-            func=func,
-        ),
-    )
-    # END TEST STUB ONLY
+class RunFuncError(Exception):
+    pass
+
+class StatusRunFuncError(RunFuncError):
+    pass
+
+class DataRunFuncError(RunFuncError):
+    pass
+
+def run_func_core(host, path, hash_hex, func,
+        use_tor=None, use_response_json=None, callback=None):
+    if use_response_json is None:
+        use_response_json = True
     
-    # TODO: ...
+    if isinstance(func, str):
+        func = func.encode()
     
-    if callback is not None:
-        callback()
+    data = {
+        'hash': hash_hex,
+        'func_b': base64.b64encode(func),
+    }
+    
+    def on_response(response, error):
+        if error is not None:
+            raise error
+        
+        response_data = response.read()
+        
+        if response.status != 200:
+            raise RunFuncError(
+                'response.status not 200. response_data is:\n'
+                '{}\n__END_RESPONSE_DATA__'.format(response_data))
+        
+        if callback is not None:
+            if use_response_json:
+                from json import loads as json_loads
+                
+                try:
+                    response_data = json_loads(response_data.decode())
+                except ValueError as e:
+                    raise DataRunFuncError(
+                        'json_loads() fail. response_data is:\n'
+                        '{}\n__END_RESPONSE_DATA__'.format(response_data))
+            
+            callback(response_data)
+    
+    http_post_request(host, path, data,
+            use_tor=use_tor, callback=on_response)
 
 def write_debug_last_miniprog(path, func):
     with open(path, mode='wt', encoding='utf-8', newline='\n') as fd:
