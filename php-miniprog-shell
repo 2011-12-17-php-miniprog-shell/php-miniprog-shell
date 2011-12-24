@@ -27,7 +27,7 @@ for pkg in REQUIRED_PACKAGES:
     sys.path.append(os.path.abspath(os.path.join(
             os.path.dirname(__file__), 'site-packages', pkg)))
 
-from lib_php_miniprog_shell__2011_12_17.main import main
+from lib_php_miniprog_shell_2011_12_17.main import main
 
 if __name__ == '__main__':
     error = main()
