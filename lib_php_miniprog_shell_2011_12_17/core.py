@@ -70,7 +70,7 @@ def run_func_core(host, path, hash_hex, func,
             use_tor=use_tor, callback=on_response)
 
 def write_debug_last_miniprog(path, func):
-    with open(path, mode='wt', encoding='utf-8', newline='\n') as fd:
+    with open(path, mode='w', encoding='utf-8', newline='\n') as fd:
         fd.write(func)
 
 def run_func(core_config, func,
