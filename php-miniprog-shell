@@ -20,6 +20,7 @@ assert str is not bytes
 
 REQUIRED_PACKAGES = (
     'tornado',
+    'socksipy-branch',
 )
 
 import sys, os.path

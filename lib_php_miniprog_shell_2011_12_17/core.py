@@ -94,5 +94,6 @@ def run_func(core_config, func,
             core_config.miniprog_path,
             hash_hex,
             func,
+            use_tor=core_config.miniprog_tor,
             use_response_json=use_response_json,
             callback=callback)

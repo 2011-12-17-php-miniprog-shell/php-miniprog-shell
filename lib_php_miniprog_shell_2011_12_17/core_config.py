@@ -35,6 +35,14 @@ def get_miniprog_path(args, config):
         miniprog_path = config.get('miniprog', 'path', fallback=None)
     return miniprog_path
 
+def get_miniprog_tor(args, config):
+    miniprog_tor = None
+    if args.miniprog_tor:
+        miniprog_tor = True
+    else:
+        miniprog_tor = config.getboolean('miniprog', 'tor', fallback=None)
+    return miniprog_tor
+
 def get_debug_last_miniprog(args, config):
     debug_last_miniprog = args.debug_last_miniprog
     if debug_last_miniprog is None:
@@ -47,6 +55,7 @@ def get_core_config(args, config):
     core_config.auth_secret = get_auth_secret(args, config)
     core_config.miniprog_host = get_miniprog_host(args, config)
     core_config.miniprog_path = get_miniprog_path(args, config)
+    core_config.miniprog_tor = get_miniprog_tor(args, config)
     core_config.debug_last_miniprog = get_debug_last_miniprog(args, config)
     
     return core_config

@@ -122,6 +122,10 @@ def main():
                 '--miniprog-path',
                 help='Path to miniprog-processor php-file')
         parser.add_argument(
+                '--miniprog-tor',
+                action='store_true',
+                help='Connect via Tor Project network')
+        parser.add_argument(
                 '--debug-last-miniprog',
                 help='Path to local-file for outputting last mini-program')
         subparsers = parser.add_subparsers(title='subcommands')
