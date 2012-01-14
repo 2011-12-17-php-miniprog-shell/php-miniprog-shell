@@ -17,5 +17,5 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'Print the path of the current working directory'
+DESCRIPTION = 'print the path of the current working directory'
 HELP = DESCRIPTION

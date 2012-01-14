@@ -110,28 +110,28 @@ def on_error(e_type, e_value, e_traceback):
 def main():
     with tornado.stack_context.ExceptionStackContext(on_error):
         parser = argparse.ArgumentParser(
-                description='Utility for sending commands to remote php www-site')
+                description='utility for sending commands to remote php www-site')
         
         parser.add_argument(
                 '--config',
-                help='Custom path to config ini-file')
+                help='custom path to config ini-file')
         parser.add_argument(
                 '--miniprog-host',
-                help='Host name (and port) of www-site with miniprog-processor php-file')
+                help='host name (and port) of www-site with miniprog-processor php-file')
         parser.add_argument(
                 '--miniprog-path',
-                help='Path to miniprog-processor php-file')
+                help='path to miniprog-processor php-file')
         parser.add_argument(
                 '--miniprog-https',
                 action='store_true',
-                help='Using HTTPS')
+                help='using HTTPS')
         parser.add_argument(
                 '--miniprog-tor',
                 action='store_true',
-                help='Connect via Tor Project network')
+                help='connect via Tor Project network')
         parser.add_argument(
                 '--debug-last-miniprog',
-                help='Path to local-file for outputting last mini-program')
+                help='path to local-file for outputting last mini-program')
         subparsers = parser.add_subparsers(title='subcommands')
         
         for cmd in COMMAND_LIST:

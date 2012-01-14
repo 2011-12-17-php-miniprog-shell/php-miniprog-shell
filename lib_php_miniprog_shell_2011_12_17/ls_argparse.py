@@ -17,17 +17,17 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'List files and directories inside the specified path'
+DESCRIPTION = 'list files and directories inside the specified path'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):
     arg_parser.add_argument(
         'path',
         nargs='?',
-        help='Path to directory that will be scanned',
+        help='path to directory that will be scanned',
     )
     arg_parser.add_argument(
         '--one',
         action='store_true',
-        help='List one file per line in simple view',
+        help='list one file per line in simple view',
     )

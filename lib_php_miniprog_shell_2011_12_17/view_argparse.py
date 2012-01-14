@@ -17,15 +17,15 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'Print remote file on the standard output'
+DESCRIPTION = 'print remote file on the standard output'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):
     arg_parser.add_argument(
         'path',
-        help='Path to file that will be view',
+        help='path to file that will be view',
     )
     arg_parser.add_argument(
         '--encoding',
-        help='Custom encoding',
+        help='custom encoding',
     )
