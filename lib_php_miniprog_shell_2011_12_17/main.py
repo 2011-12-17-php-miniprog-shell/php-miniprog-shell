@@ -122,6 +122,10 @@ def main():
                 '--miniprog-path',
                 help='Path to miniprog-processor php-file')
         parser.add_argument(
+                '--miniprog-https',
+                action='store_true',
+                help='Using HTTPS')
+        parser.add_argument(
                 '--miniprog-tor',
                 action='store_true',
                 help='Connect via Tor Project network')

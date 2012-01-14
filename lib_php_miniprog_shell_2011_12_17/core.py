@@ -32,7 +32,8 @@ class DataRunFuncError(RunFuncError):
     pass
 
 def run_func_core(host, path, hash_hex, func,
-        use_tor=None, use_response_json=None, callback=None):
+        use_https=None, use_tor=None,
+        use_response_json=None, callback=None):
     if use_response_json is None:
         use_response_json = True
     
@@ -67,7 +68,8 @@ def run_func_core(host, path, hash_hex, func,
             callback(response_data)
     
     http_post_request(host, path, data,
-            use_tor=use_tor, callback=on_response)
+            use_https=use_https, use_tor=use_tor,
+            callback=on_response)
 
 def write_debug_last_miniprog(path, func):
     with open(path, mode='w', encoding='utf-8', newline='\n') as fd:
@@ -94,6 +96,7 @@ def run_func(core_config, func,
             core_config.miniprog_path,
             hash_hex,
             func,
+            use_https=core_config.miniprog_https,
             use_tor=core_config.miniprog_tor,
             use_response_json=use_response_json,
             callback=callback)

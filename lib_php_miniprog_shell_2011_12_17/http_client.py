@@ -24,7 +24,10 @@ import tornado.ioloop, tornado.stack_context
 
 TIMEOUT = 7200
 
-def http_post_request(host, path, data, use_tor=None, callback=None):
+def http_post_request(host, path, data,
+        use_https=None, use_tor=None, callback=None):
+    if use_https is None:
+        use_https = False
     if use_tor is None:
         use_tor = False
     
@@ -35,7 +38,10 @@ def http_post_request(host, path, data, use_tor=None, callback=None):
         
         raise NotImplementedError('Tor-using not yet not implemented')
     else:
-        connection_factory = http.client.HTTPConnection
+        if use_https:
+            connection_factory = http.client.HTTPSConnection
+        else:
+            connection_factory = http.client.HTTPConnection
     
     @tornado.stack_context.wrap
     def on_response(response, error):
