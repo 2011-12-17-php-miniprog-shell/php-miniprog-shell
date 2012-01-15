@@ -19,10 +19,12 @@ assert str is not bytes
 
 import threading
 import functools
-import http.client, urllib.parse
+import urllib.parse
 import tornado.ioloop, tornado.stack_context
+from .curl.request import request
 
-TIMEOUT = 7200
+TOR_PROXY = 'localhost:9050'
+TOR_PROXY_TYPE = 'socks5.hostname'
 
 def http_post_request(host, path, data,
         use_https=None, use_tor=None, callback=None):
@@ -31,17 +33,16 @@ def http_post_request(host, path, data,
     if use_tor is None:
         use_tor = False
     
-    if use_tor:
-        #from blahbla import blahblahblah
-        #
-        #connection_factory = blahblahblah
-        
-        raise NotImplementedError('Tor-using not yet not implemented')
+    if use_https:
+        protocol = 'https'
     else:
-        if use_https:
-            connection_factory = http.client.HTTPSConnection
-        else:
-            connection_factory = http.client.HTTPConnection
+        protocol = 'http'
+    
+    if use_tor:
+        request_func = functools.partial(request,
+                proxy=TOR_PROXY, proxy_type=TOR_PROXY_TYPE)
+    else:
+        request_func = request
     
     @tornado.stack_context.wrap
     def on_response(response, error):
@@ -56,12 +57,10 @@ def http_post_request(host, path, data,
         error = None
         
         try:
-            params = urllib.parse.urlencode(data)
+            url = '{}://{}{}'.format(protocol, host, path)
+            data_str = urllib.parse.urlencode(data)
             
-            conn = connection_factory(host, timeout=TIMEOUT)
-            conn.request('POST', path, params,
-                    {'Content-type': 'application/x-www-form-urlencoded'})
-            response = conn.getresponse()
+            response = request_func(url, data=data_str)
         except Exception as e:
             error = e
         

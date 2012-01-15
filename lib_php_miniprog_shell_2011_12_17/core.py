@@ -46,7 +46,7 @@ def run_func_core(host, path, hash_hex, func,
     }
     
     def on_response(response):
-        response_data = response.read()
+        response_data = response.contents
         
         if response.status != 200:
             raise RunFuncError(
