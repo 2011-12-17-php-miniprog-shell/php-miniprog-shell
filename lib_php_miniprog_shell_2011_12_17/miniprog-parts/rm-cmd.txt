@@ -1,0 +1,17 @@
+try {
+    $result = unlink($arg__ARG_MAP['path']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+if (!$result) {
+    return json_encode(array(
+        'error' => 'Failure',
+    ));
+}
+
+return json_encode(array(
+    'error' => NULL,
+));
