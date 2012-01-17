@@ -1,0 +1,18 @@
+try {
+    $result = mkdir($arg__ARG_MAP['path'],
+            $arg__ARG_MAP['mode'], $arg__ARG_MAP['recursive']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+if (!$result) {
+    return json_encode(array(
+        'error' => 'Failure',
+    ));
+}
+
+return json_encode(array(
+    'error' => NULL,
+));
