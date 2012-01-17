@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'print remote file on the standard output'
+DESCRIPTION = 'print file on the standard output'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):

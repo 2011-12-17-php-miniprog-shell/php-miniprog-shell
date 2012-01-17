@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'makes a copy of the file source to dest'
+DESCRIPTION = 'make a copy of the file source to dest'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):

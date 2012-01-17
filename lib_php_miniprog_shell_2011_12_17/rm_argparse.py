@@ -17,7 +17,7 @@
 
 assert str is not bytes
 
-DESCRIPTION = 'deletes remote file'
+DESCRIPTION = 'delete file'
 HELP = DESCRIPTION
 
 def add_arguments(arg_parser):
