@@ -130,6 +130,10 @@ def main():
                 action='store_true',
                 help='connect via Tor Project network')
         parser.add_argument(
+                '--miniprog-no-tor',
+                action='store_true',
+                help='not using connection via Tor Project network')
+        parser.add_argument(
                 '--debug-last-miniprog',
                 help='path to local-file for outputting last mini-program')
         subparsers = parser.add_subparsers(title='subcommands')

@@ -47,6 +47,8 @@ def get_miniprog_tor(args, config):
     miniprog_tor = None
     if args.miniprog_tor:
         miniprog_tor = True
+    elif args.miniprog_no_tor:
+        miniprog_tor = False
     else:
         miniprog_tor = config.getboolean('miniprog', 'tor', fallback=None)
     return miniprog_tor
