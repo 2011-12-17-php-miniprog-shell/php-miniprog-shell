@@ -101,7 +101,7 @@ def on_error(e_type, e_value, e_traceback):
         print('UserError: {}'.format(e), file=sys.stderr)
         exit(2)
     except CmdError as e:
-        print('CmdError: {}'.format(e), file=sys.stderr)
+        print('CmdError ({}): {}'.format(type(e), e), file=sys.stderr)
         exit(1)
     except Exception as e:
         traceback.print_exc()
