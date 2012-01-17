@@ -1,0 +1,12 @@
+try {
+    $result = readlink($arg__ARG_MAP['path']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+return json_encode(array(
+    'result' => base64_encode($result),
+    'error' => NULL,
+));
