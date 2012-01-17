@@ -1,0 +1,17 @@
+try {
+    $result = copy($arg__ARG_MAP['source'], $arg__ARG_MAP['dest']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+if (!$result) {
+    return json_encode(array(
+        'error' => 'Failure',
+    ));
+}
+
+return json_encode(array(
+    'error' => NULL,
+));
