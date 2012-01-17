@@ -1,0 +1,26 @@
+$dest = $arg__ARG_MAP['dest'];
+
+if (is_dir($dest)) {
+    if (substr($dest, -1) != '/') {
+        $dest .= '/';
+    }
+    $dest .= $arg__ARG_MAP['basename'];
+}
+
+try {
+    $result = file_put_contents($dest, $data = $arg__ARG_MAP['data']);
+} catch (ErrorException $e) {
+    return json_encode(array(
+        'error' => $e->getMessage(),
+    ));
+}
+
+if ($result === FALSE) {
+    return json_encode(array(
+        'error' => 'Failure',
+    ));
+}
+
+return json_encode(array(
+    'error' => NULL,
+));
