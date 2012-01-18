@@ -67,7 +67,6 @@ def on_write(curl_obj, ptr, size, nmemb, userdata):
     buf = bytes(buf_p.contents)
     
     curl_obj.response_contents.append(buf)
-    
     return real_size
 
 def get_response_status(curl_obj):
@@ -84,6 +83,8 @@ class ResponseResult:
 def request(url, data=None, header_list=None, proxy=None, proxy_type=None):
     curl_obj = EasyCurl()
     
+    curl_func_or_error(lib.curl_easy_setopt__c_long,
+                curl_obj.handle, lib.CURLOPT_NOSIGNAL, 1)
     curl_obj.url_opt = c_char_p(url.encode())
     curl_func_or_error(lib.curl_easy_setopt__c_char_p,
             curl_obj.handle, lib.CURLOPT_URL, curl_obj.url_opt)

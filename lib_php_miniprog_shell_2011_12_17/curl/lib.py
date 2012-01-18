@@ -52,7 +52,7 @@ WRITEFUNCTION = CFUNCTYPE(c_size_t, POINTER(c_char), c_size_t, c_size_t, c_void_
 
 CURL_GLOBAL_ALL = 3
 
-CURLOPT_ERRORBUFFER = 10010
+CURLOPT_NOSIGNAL = 99
 CURLOPT_URL = 10002
 CURLOPT_WRITEFUNCTION = 20011
 CURLOPT_POSTFIELDS = 10015
@@ -119,4 +119,10 @@ curl_easy_getinfo__pointer_c_long = CFUNCTYPE(CURLcode, CURL_HANDLE, CURLINFO, P
 
 # run init
 
+try:
+    # init threadsafe for OpenSSL (http://www.openssl.org/docs/crypto/threads.html#DESCRIPTION)
+    
+    import ssl
+except ImportError:
+    pass
 curl_global_init(CURL_GLOBAL_ALL)
