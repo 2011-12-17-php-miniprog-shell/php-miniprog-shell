@@ -18,6 +18,7 @@
 assert str is not bytes
 
 from ctypes import *
+import functools
 from . import lib
 
 class RequestError(IOError):
@@ -57,11 +58,11 @@ class EasyCurl:
             lib.curl_easy_cleanup(handle)
             del self.handle
 
-def on_write(ptr, size, nmemb, userdata):
-    curl_obj_p = cast(userdata, POINTER(py_object))
-    curl_obj = curl_obj_p.contents.value
-    
+def on_write(curl_obj, ptr, size, nmemb, userdata):
     real_size = size * nmemb
+    if not real_size:
+        return 0
+    
     buf_p = cast(ptr, POINTER(c_char * real_size))
     buf = bytes(buf_p.contents)
     
@@ -82,18 +83,15 @@ class ResponseResult:
 
 def request(url, data=None, header_list=None, proxy=None, proxy_type=None):
     curl_obj = EasyCurl()
-    curl_obj_p = pointer(py_object(curl_obj))
     
     curl_obj.url_opt = c_char_p(url.encode())
     curl_func_or_error(lib.curl_easy_setopt__c_char_p,
             curl_obj.handle, lib.CURLOPT_URL, curl_obj.url_opt)
     
-    curl_obj.write_func_opt = lib.WRITEFUNCTION(on_write)
+    curl_obj.write_func_opt = lib.WRITEFUNCTION(functools.partial(
+            on_write, curl_obj))
     curl_func_or_error(lib.curl_easy_setopt__writefunction,
             curl_obj.handle, lib.CURLOPT_WRITEFUNCTION, curl_obj.write_func_opt)
-    
-    curl_func_or_error(lib.curl_easy_setopt__c_void_p,
-            curl_obj.handle, lib.CURLOPT_WRITEDATA, curl_obj_p)
     
     if data is not None:
         if isinstance(data, str):
