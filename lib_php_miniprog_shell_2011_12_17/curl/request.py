@@ -18,7 +18,6 @@
 assert str is not bytes
 
 from ctypes import *
-import functools
 from . import lib
 
 class RequestError(IOError):
@@ -58,17 +57,6 @@ class EasyCurl:
             lib.curl_easy_cleanup(handle)
             del self.handle
 
-def on_write(curl_obj, ptr, size, nmemb, userdata):
-    real_size = size * nmemb
-    if not real_size:
-        return 0
-    
-    buf_p = cast(ptr, POINTER(c_char * real_size))
-    buf = bytes(buf_p.contents)
-    
-    curl_obj.response_contents.append(buf)
-    return real_size
-
 def get_response_status(curl_obj):
     code = c_long(0)
     
@@ -80,77 +68,91 @@ def get_response_status(curl_obj):
 class ResponseResult:
     pass
 
-def request(url, curl_obj=None, data=None, header_list=None, proxy=None, proxy_type=None):
-    if curl_obj is None:
-        curl_obj = EasyCurl()
-    
-    # options for threadsafe
-    curl_func_or_error(lib.curl_easy_setopt__c_long,
-            curl_obj.handle, lib.CURLOPT_NOSIGNAL, 1)
-    curl_func_or_error(lib.curl_easy_setopt__c_long,
-            curl_obj.handle, lib.CURLOPT_DNS_USE_GLOBAL_CACHE, 0)
-    
-    curl_obj.url_opt = c_char_p(url.encode())
-    curl_func_or_error(lib.curl_easy_setopt__c_char_p,
-            curl_obj.handle, lib.CURLOPT_URL, curl_obj.url_opt)
-    
-    curl_obj.write_func_opt = lib.WRITEFUNCTION(functools.partial(
-            on_write, curl_obj))
-    curl_func_or_error(lib.curl_easy_setopt__writefunction,
-            curl_obj.handle, lib.CURLOPT_WRITEFUNCTION, curl_obj.write_func_opt)
-    
-    if data is not None:
-        if isinstance(data, str):
-            data = data.encode()
+class Request:
+    def __init__(self, url, data=None, header_list=None, proxy=None, proxy_type=None):
+        self._curl_obj = EasyCurl()
         
-        curl_obj.post_fields_opt = pointer(create_string_buffer(len(data)))
-        curl_obj.post_fields_opt.contents.value = data
-        
+        # options for threadsafe perform
         curl_func_or_error(lib.curl_easy_setopt__c_long,
-                curl_obj.handle, lib.CURLOPT_POSTFIELDSIZE_LARGE,
-                sizeof(curl_obj.post_fields_opt.contents))
-        curl_func_or_error(lib.curl_easy_setopt__c_void_p,
-                curl_obj.handle, lib.CURLOPT_POSTFIELDS, curl_obj.post_fields_opt)
-    
-    if header_list is not None:
-        curl_obj.header_slist_opt = lib.curl_slist_p()
+                self._curl_obj.handle, lib.CURLOPT_NOSIGNAL, 1)
+        curl_func_or_error(lib.curl_easy_setopt__c_long,
+                self._curl_obj.handle, lib.CURLOPT_DNS_USE_GLOBAL_CACHE, 0)
         
-        for header in header_list:
-            if isinstance(header, str):
-                header = header.encode()
-            
-            curl_obj.header_slist_opt = lib.curl_slist_append(
-                    curl_obj.header_slist_opt, header)
-        
-        curl_func_or_error(lib.curl_easy_setopt__c_void_p,
-                curl_obj.handle, lib.CURLOPT_HTTPHEADER, curl_obj.header_slist_opt)
-    
-    if proxy is not None:
-        curl_obj.proxy_opt = c_char_p(proxy.encode())
+        self._curl_obj.url_opt = c_char_p(url.encode())
         curl_func_or_error(lib.curl_easy_setopt__c_char_p,
-                curl_obj.handle, lib.CURLOPT_PROXY, curl_obj.proxy_opt)
-    
-    if proxy_type is not None:
-        proxy_type_code = {
-            'http': lib.CURLPROXY_HTTP,
-            'http1.0': lib.CURLPROXY_HTTP_1_0,
-            'socks4': lib.CURLPROXY_SOCKS4,
-            'socks5': lib.CURLPROXY_SOCKS5,
-            'socks4a': lib.CURLPROXY_SOCKS4A,
-            'socks5.hostname': lib.CURLPROXY_SOCKS5_HOSTNAME,
-        }.get(proxy_type)
+                self._curl_obj.handle, lib.CURLOPT_URL, self._curl_obj.url_opt)
         
-        if proxy_type_code is None:
-            raise NotImplementedError('not supported proxy type {!r}'.format(proxy_type))
+        self._curl_obj.write_func_opt = lib.WRITEFUNCTION(self._on_write)
+        curl_func_or_error(lib.curl_easy_setopt__writefunction,
+                self._curl_obj.handle, lib.CURLOPT_WRITEFUNCTION, self._curl_obj.write_func_opt)
         
-        curl_func_or_error(lib.curl_easy_setopt__c_long,
-                curl_obj.handle, lib.CURLOPT_PROXYTYPE, proxy_type_code)
+        if data is not None:
+            if isinstance(data, str):
+                data = data.encode()
+            
+            self._curl_obj.post_fields_opt = pointer(create_string_buffer(len(data)))
+            self._curl_obj.post_fields_opt.contents.value = data
+            
+            curl_func_or_error(lib.curl_easy_setopt__c_long,
+                    self._curl_obj.handle, lib.CURLOPT_POSTFIELDSIZE_LARGE,
+                    sizeof(self._curl_obj.post_fields_opt.contents))
+            curl_func_or_error(lib.curl_easy_setopt__c_void_p,
+                    self._curl_obj.handle, lib.CURLOPT_POSTFIELDS, self._curl_obj.post_fields_opt)
+        
+        if header_list is not None:
+            self._curl_obj.header_slist_opt = lib.curl_slist_p()
+            
+            for header in header_list:
+                if isinstance(header, str):
+                    header = header.encode()
+                
+                self._curl_obj.header_slist_opt = lib.curl_slist_append(
+                        self._curl_obj.header_slist_opt, header)
+            
+            curl_func_or_error(lib.curl_easy_setopt__c_void_p,
+                    self._curl_obj.handle, lib.CURLOPT_HTTPHEADER, self._curl_obj.header_slist_opt)
+        
+        if proxy is not None:
+            self._curl_obj.proxy_opt = c_char_p(proxy.encode())
+            curl_func_or_error(lib.curl_easy_setopt__c_char_p,
+                    self._curl_obj.handle, lib.CURLOPT_PROXY, self._curl_obj.proxy_opt)
+        
+        if proxy_type is not None:
+            proxy_type_code = {
+                'http': lib.CURLPROXY_HTTP,
+                'http1.0': lib.CURLPROXY_HTTP_1_0,
+                'socks4': lib.CURLPROXY_SOCKS4,
+                'socks5': lib.CURLPROXY_SOCKS5,
+                'socks4a': lib.CURLPROXY_SOCKS4A,
+                'socks5.hostname': lib.CURLPROXY_SOCKS5_HOSTNAME,
+            }.get(proxy_type)
+            
+            if proxy_type_code is None:
+                raise NotImplementedError('not supported proxy type {!r}'.format(proxy_type))
+            
+            curl_func_or_error(lib.curl_easy_setopt__c_long,
+                    self._curl_obj.handle, lib.CURLOPT_PROXYTYPE, proxy_type_code)
     
-    curl_obj.response_contents = []
-    curl_func_or_error(lib.curl_easy_perform, curl_obj.handle)
+    def _on_write(self, ptr, size, nmemb, userdata):
+        real_size = size * nmemb
+        
+        if not real_size:
+            return 0
+        
+        buf_p = cast(ptr, POINTER(c_char * real_size))
+        buf = bytes(buf_p.contents)
+        
+        self._response_contents.append(buf)
+        
+        return real_size
     
-    response = ResponseResult()
-    response.status = get_response_status(curl_obj)
-    response.contents = b''.join(curl_obj.response_contents)
-    
-    return response
+    def perform(self):
+        self._response_contents = []
+        
+        curl_func_or_error(lib.curl_easy_perform, self._curl_obj.handle)
+        
+        response = ResponseResult()
+        response.status = get_response_status(self._curl_obj)
+        response.contents = b''.join(self._response_contents)
+        
+        return response

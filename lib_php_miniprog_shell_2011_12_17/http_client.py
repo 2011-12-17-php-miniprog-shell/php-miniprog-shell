@@ -21,7 +21,7 @@ import threading
 import functools
 import urllib.parse
 import tornado.ioloop, tornado.stack_context
-from .curl.request import EasyCurl, request
+from .curl.request import Request
 
 TOR_PROXY = 'localhost:9050'
 TOR_PROXY_TYPE = 'socks5.hostname'
@@ -33,18 +33,20 @@ def http_post_request(host, path, data,
     if use_tor is None:
         use_tor = False
     
+    if use_tor:
+        proxy = TOR_PROXY
+        proxy_type = TOR_PROXY_TYPE
+    else:
+        proxy = None
+        proxy_type = None
     if use_https:
         protocol = 'https'
     else:
         protocol = 'http'
+    url = '{}://{}{}'.format(protocol, host, path)
+    data_str = urllib.parse.urlencode(data)
     
-    curl_obj = EasyCurl()
-    
-    if use_tor:
-        request_func = functools.partial(request,
-                curl_obj=curl_obj, proxy=TOR_PROXY, proxy_type=TOR_PROXY_TYPE)
-    else:
-        request_func = functools.partial(request, curl_obj=curl_obj)
+    request = Request(url, data=data_str, proxy=proxy, proxy_type=proxy_type)
     
     @tornado.stack_context.wrap
     def on_response(response, error):
@@ -59,10 +61,7 @@ def http_post_request(host, path, data,
         error = None
         
         try:
-            url = '{}://{}{}'.format(protocol, host, path)
-            data_str = urllib.parse.urlencode(data)
-            
-            response = request_func(url, data=data_str)
+            response = request.perform()
         except Exception as e:
             error = e
         
