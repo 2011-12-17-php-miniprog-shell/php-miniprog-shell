@@ -80,8 +80,9 @@ def get_response_status(curl_obj):
 class ResponseResult:
     pass
 
-def request(url, data=None, header_list=None, proxy=None, proxy_type=None):
-    curl_obj = EasyCurl()
+def request(url, curl_obj=None, data=None, header_list=None, proxy=None, proxy_type=None):
+    if curl_obj is None:
+        curl_obj = EasyCurl()
     
     # options for threadsafe
     curl_func_or_error(lib.curl_easy_setopt__c_long,
