@@ -83,8 +83,12 @@ class ResponseResult:
 def request(url, data=None, header_list=None, proxy=None, proxy_type=None):
     curl_obj = EasyCurl()
     
+    # options for threadsafe
     curl_func_or_error(lib.curl_easy_setopt__c_long,
-                curl_obj.handle, lib.CURLOPT_NOSIGNAL, 1)
+            curl_obj.handle, lib.CURLOPT_NOSIGNAL, 1)
+    curl_func_or_error(lib.curl_easy_setopt__c_long,
+            curl_obj.handle, lib.CURLOPT_DNS_USE_GLOBAL_CACHE, 0)
+    
     curl_obj.url_opt = c_char_p(url.encode())
     curl_func_or_error(lib.curl_easy_setopt__c_char_p,
             curl_obj.handle, lib.CURLOPT_URL, curl_obj.url_opt)
