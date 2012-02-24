@@ -17,57 +17,36 @@
 
 assert str is not bytes
 
-import threading
-import functools
 import urllib.parse
-import tornado.ioloop, tornado.stack_context
-from .curl.request import Request
+import tornado.httpclient
 
-TOR_PROXY = 'localhost:9050'
-TOR_PROXY_TYPE = 'socks5.hostname'
+REQUEST_TIMEOUT = 1200.0
 
 def http_post_request(host, path, data,
-        use_https=None, use_tor=None, callback=None):
+        use_https=None, proxy_host=None, proxy_port=None,
+        callback=None):
     if use_https is None:
         use_https = False
-    if use_tor is None:
-        use_tor = False
     
-    if use_tor:
-        proxy = TOR_PROXY
-        proxy_type = TOR_PROXY_TYPE
-    else:
-        proxy = None
-        proxy_type = None
     if use_https:
         protocol = 'https'
     else:
         protocol = 'http'
+    
     url = '{}://{}{}'.format(protocol, host, path)
     data_str = urllib.parse.urlencode(data)
+    data_b = data_str.encode()
+    fetch_kwargs = {}
+    if proxy_host is not None and proxy_port is not None:
+        fetch_kwargs['proxy_host'] = proxy_host
+        fetch_kwargs['proxy_port'] = proxy_port
     
-    request = Request(url, data=data_str, proxy=proxy, proxy_type=proxy_type)
-    
-    @tornado.stack_context.wrap
-    def on_response(response, error):
-        if error is not None:
-            raise error
+    def on_response(response):
+        response.rethrow()
         
         if callback is not None:
             callback(response)
     
-    def daemon():
-        response = None
-        error = None
-        
-        try:
-            response = request.perform()
-        except Exception as e:
-            error = e
-        
-        tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(on_response, response, error))
-    
-    thread = threading.Thread(target=daemon)
-    thread.daemon = True
-    thread.start()
+    http_client = tornado.httpclient.AsyncHTTPClient()
+    http_client.fetch(url, on_response,
+            method='POST', body=data_b, **fetch_kwargs)

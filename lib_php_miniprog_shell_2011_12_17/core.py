@@ -32,7 +32,7 @@ class DataRunFuncError(RunFuncError):
     pass
 
 def run_func_core(host, path, hash_hex, func,
-        use_https=None, use_tor=None,
+        use_https=None, proxy_host=None, proxy_port=None,
         use_response_json=None, callback=None):
     if use_response_json is None:
         use_response_json = True
@@ -46,9 +46,9 @@ def run_func_core(host, path, hash_hex, func,
     }
     
     def on_response(response):
-        response_data = response.contents
+        response_data = response.body
         
-        if response.status != 200:
+        if response.code != 200:
             raise RunFuncError(
                 'response.status not 200. response_data is:\n'
                 '{}\n__END_RESPONSE_DATA__'.format(response_data))
@@ -68,7 +68,8 @@ def run_func_core(host, path, hash_hex, func,
             callback(response_data)
     
     http_post_request(host, path, data,
-            use_https=use_https, use_tor=use_tor,
+            use_https=use_https,
+            proxy_host=proxy_host, proxy_port=proxy_port,
             callback=on_response)
 
 def write_debug_last_miniprog(path, func):
@@ -81,6 +82,9 @@ def run_func(core_config, func,
         raise UserError('\'miniprog_host\' has not been set')
     if core_config.miniprog_path is None:
         raise UserError('\'miniprog_path\' has not been set')
+    if core_config.miniprog_proxy_host is not None and \
+            core_config.miniprog_proxy_port is None:
+        raise UserError('\'miniprog_proxy_port\' has not been set')
     if core_config.auth_secret is None:
         raise UserError('\'auth_secret\' has not been set')
     
@@ -97,6 +101,7 @@ def run_func(core_config, func,
             hash_hex,
             func,
             use_https=core_config.miniprog_https,
-            use_tor=core_config.miniprog_tor,
+            proxy_host=core_config.miniprog_proxy_host,
+            proxy_port=core_config.miniprog_proxy_port,
             use_response_json=use_response_json,
             callback=callback)

@@ -126,13 +126,11 @@ def main():
                 action='store_true',
                 help='using HTTPS')
         parser.add_argument(
-                '--miniprog-tor',
-                action='store_true',
-                help='connect via Tor Project network')
+                '--miniprog-proxy-host',
+                help='host for connection via proxy')
         parser.add_argument(
-                '--miniprog-no-tor',
-                action='store_true',
-                help='not using connection via Tor Project network')
+                '--miniprog-proxy-port',
+                help='port for connection via proxy')
         parser.add_argument(
                 '--debug-last-miniprog',
                 help='path to local-file for outputting last mini-program')
