@@ -17,9 +17,14 @@
 
 assert str is not bytes
 
-import sys, os.path, importlib, functools, traceback, argparse, configparser
+import sys, os.path, \
+        importlib, functools, traceback, argparse, configparser, \
+        threading
 import tornado.ioloop
 import tornado.stack_context
+
+_local = threading.local()
+_local.exit_code = None
 
 COMMAND_LIST = (
     'php-func',
@@ -88,24 +93,27 @@ def get_config_path(args):
     
     return config_path
 
-def on_finish(exit_code=None):
+def program_exit(code=None):
     tornado.ioloop.IOLoop.instance().stop()
     
-    if exit_code is not None:
-        exit(exit_code)
+    if code is not None:
+        _local.exit_code = code
+
+def on_finish():
+    program_exit()
 
 def on_error(e_type, e_value, e_traceback):
     try:
         raise e_value
     except UserError as e:
         print('UserError: {}'.format(e), file=sys.stderr)
-        exit(2)
+        program_exit(code=2)
     except CmdError as e:
         print('CmdError ({}): {}'.format(type(e), e), file=sys.stderr)
-        exit(1)
+        program_exit(code=1)
     except Exception as e:
         traceback.print_exc()
-        exit(1)
+        program_exit(code=1)
 
 def main():
     with tornado.stack_context.ExceptionStackContext(on_error):
@@ -150,3 +158,5 @@ def main():
         cmd_module.cmd(args, config, callback=on_finish)
     
     io_loop = tornado.ioloop.IOLoop.instance().start()
+    
+    return _local.exit_code

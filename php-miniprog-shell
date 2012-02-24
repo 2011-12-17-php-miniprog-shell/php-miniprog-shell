@@ -32,5 +32,5 @@ from lib_php_miniprog_shell_2011_12_17.main import main
 if __name__ == '__main__':
     error = main()
     
-    if error:
-        exit(error)
+    if error is not None:
+        exit(code=error)
