@@ -9,4 +9,4 @@ perform complex actions on remote site
 Status
 ------
 
-the current status of the project -- is `Development`
+the current status of the project -- is `Beta`
