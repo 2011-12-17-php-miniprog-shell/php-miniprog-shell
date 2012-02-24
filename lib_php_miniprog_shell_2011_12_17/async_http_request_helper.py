@@ -17,10 +17,30 @@
 
 assert str is not bytes
 
-import urllib.parse
-import tornado.httpclient
+import urllib.parse, urllib.request
+from .daemon_async import daemon_async
 
 REQUEST_TIMEOUT = 1200.0
+RESPONSE_BODY_LENGTH_LIMIT = 100000000
+
+class Response:
+    pass
+
+@daemon_async
+def async_fetch(url, data=None, proxies=None):
+    build_opener_args = []
+    if proxies is not None:
+        build_opener_args.append(
+                urllib.request.ProxyHandler(proxies=proxies))
+    
+    opener = urllib.request.build_opener(*build_opener_args)
+    f = opener.open(url, data=data, timeout=REQUEST_TIMEOUT)
+    
+    response = Response()
+    response.code = f.getcode()
+    response.body = f.read(RESPONSE_BODY_LENGTH_LIMIT)
+    
+    return response
 
 def http_post_request(host, path, data,
         use_https=None, proxy_host=None, proxy_port=None,
@@ -34,19 +54,14 @@ def http_post_request(host, path, data,
         protocol = 'http'
     
     url = '{}://{}{}'.format(protocol, host, path)
-    data_str = urllib.parse.urlencode(data)
-    data_b = data_str.encode()
+    data_b = urllib.parse.urlencode(data).encode()
     fetch_kwargs = {}
     if proxy_host is not None and proxy_port is not None:
-        fetch_kwargs['proxy_host'] = proxy_host
-        fetch_kwargs['proxy_port'] = proxy_port
+        if ':' in proxy_host:
+            proxies = {'http': '[{}]:{}'.format(proxy_host, proxy_port)}
+        else:
+            proxies = {'http': '{}:{}'.format(proxy_host, proxy_port)}
+    else:
+        proxies = None
     
-    def on_response(response):
-        response.rethrow()
-        
-        if callback is not None:
-            callback(response)
-    
-    http_client = tornado.httpclient.AsyncHTTPClient()
-    http_client.fetch(url, on_response,
-            method='POST', body=data_b, **fetch_kwargs)
+    async_fetch(url, data=data_b, proxies=proxies, callback=callback)
