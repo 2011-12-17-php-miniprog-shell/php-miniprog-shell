@@ -19,7 +19,7 @@ assert str is not bytes
 
 import base64
 from .auth import gen_hash
-from .async_http_request import http_post_request
+from .async_http_request_helper import http_post_request
 from .main import UserError
 
 class RunFuncError(Exception):
