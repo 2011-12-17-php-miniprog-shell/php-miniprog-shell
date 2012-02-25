@@ -49,16 +49,6 @@ def get_miniprog_proxy_host(args, config):
         miniprog_proxy_host = config.get('miniprog', 'proxy_host', fallback=None)
     return miniprog_proxy_host
 
-def get_miniprog_proxy_port(args, config):
-    miniprog_proxy_port = args.miniprog_proxy_port
-    if miniprog_proxy_port is None:
-        miniprog_proxy_port = config.get('miniprog', 'proxy_port', fallback=None)
-    
-    if miniprog_proxy_port is not None:
-        miniprog_proxy_port = int(miniprog_proxy_port)
-    
-    return miniprog_proxy_port
-
 def get_debug_last_miniprog(args, config):
     debug_last_miniprog = args.debug_last_miniprog
     if debug_last_miniprog is None:
@@ -73,7 +63,6 @@ def get_core_config(args, config):
     core_config.miniprog_path = get_miniprog_path(args, config)
     core_config.miniprog_https = get_miniprog_https(args, config)
     core_config.miniprog_proxy_host = get_miniprog_proxy_host(args, config)
-    core_config.miniprog_proxy_port = get_miniprog_proxy_port(args, config)
     core_config.debug_last_miniprog = get_debug_last_miniprog(args, config)
     
     return core_config

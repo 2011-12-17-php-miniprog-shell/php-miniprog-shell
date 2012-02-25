@@ -135,10 +135,7 @@ def main():
                 help='using HTTPS')
         parser.add_argument(
                 '--miniprog-proxy-host',
-                help='host for connection via proxy')
-        parser.add_argument(
-                '--miniprog-proxy-port',
-                help='port for connection via proxy')
+                help='host (and port) for connection via proxy')
         parser.add_argument(
                 '--debug-last-miniprog',
                 help='path to local-file for outputting last mini-program')
