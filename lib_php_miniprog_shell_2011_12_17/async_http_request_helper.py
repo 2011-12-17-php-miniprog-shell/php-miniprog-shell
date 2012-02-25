@@ -43,8 +43,7 @@ def async_fetch(url, data=None, proxies=None):
     return response
 
 def http_post_request(host, path, data,
-        use_https=None, proxy_host=None, proxy_port=None,
-        callback=None):
+        use_https=None, proxy_host=None, callback=None):
     if use_https is None:
         use_https = False
     
@@ -56,11 +55,8 @@ def http_post_request(host, path, data,
     url = '{}://{}{}'.format(protocol, host, path)
     data_b = urllib.parse.urlencode(data).encode()
     fetch_kwargs = {}
-    if proxy_host is not None and proxy_port is not None:
-        if ':' in proxy_host:
-            proxies = {'http': '[{}]:{}'.format(proxy_host, proxy_port)}
-        else:
-            proxies = {'http': '{}:{}'.format(proxy_host, proxy_port)}
+    if proxy_host is not None:
+        proxies = {'http': '{}'.format(proxy_host)}
     else:
         proxies = None
     
