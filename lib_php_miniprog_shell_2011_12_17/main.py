@@ -24,7 +24,6 @@ import tornado.ioloop
 import tornado.stack_context
 
 _local = threading.local()
-_local.exit_code = None
 
 COMMAND_LIST = (
     'php-func',
@@ -156,4 +155,7 @@ def main():
     
     io_loop = tornado.ioloop.IOLoop.instance().start()
     
-    return _local.exit_code
+    try:
+        return _local.exit_code
+    except AttributeError:
+        pass
